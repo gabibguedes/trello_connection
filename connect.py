@@ -3,7 +3,7 @@ import os
 
 TOKEN = os.environ['TOKEN']
 KEY = os.environ['KEY']
-BACKLOG = os.environ['BACKLOG']
+CARD_LIST = os.environ['CARD_LIST']
 
 def create_card(card_name):
   url = "https://api.trello.com/1/cards"
@@ -11,7 +11,7 @@ def create_card(card_name):
   data = {
     'key': KEY,
     'token': TOKEN,
-    'idList': BACKLOG,
+    'idList': CARD_LIST,
     'name': card_name
   }
   r = requests.post(url, data=data)
