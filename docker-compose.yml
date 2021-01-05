@@ -2,6 +2,28 @@ version: '3.8'
 
 services: 
   app:
+    container_name: connection
     build: .
     env_file: .env
+    volumes: 
+      - .:/code
     command: "python /code/connect.py"
+    networks: 
+      - project_network
+    depends_on:
+      - database
+
+  database:
+    container_name: database
+    image: postgres:13
+    volumes: 
+      - db:/var/lib/postgresql/data
+    env_file: .env
+    networks: 
+      - project_network
+
+networks: 
+  project_network:
+
+volumes: 
+  db:
