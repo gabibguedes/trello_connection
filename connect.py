@@ -1,15 +1,25 @@
+import threading
 import requests
 import os
+import logging
+
 from issue import Issue
 from database import *
+
+WAIT_SECONDS = 60 * 15 # 15 minutes
 
 TRELLO_TOKEN = os.environ['TRELLO_TOKEN']
 TRELLO_KEY = os.environ['TRELLO_KEY']
 TRELLO_CARD_LIST = os.environ['TRELLO_CARD_LIST']
 REDMINE_KEY = os.environ['REDMINE_KEY']
 
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
+
 def create_card(issue:Issue):
-  print('===> CREATING CARD FOR {}'.format(issue.id))
+  logging.info('===> CREATING CARD FOR {}'.format(issue.id))
   url = "https://api.trello.com/1/cards"
   data = {
     'key': TRELLO_KEY,
@@ -22,7 +32,7 @@ def create_card(issue:Issue):
   requests.post(url, data=data)
 
 def get_issues():
-  print('===> GETTING ISSUES')
+  logging.info('===> GETTING ISSUES')
   issue_link = 'https://redmine.medipreco.com.br/issues/'
   url = 'https://redmine.medipreco.com.br/projects/silo-de-produto/issues.json?assigned_to_id=me'
   issues = []
@@ -44,7 +54,7 @@ def get_issues():
   return issues
 
 def make_connection():
-  print('===> MAKING CONECTION')
+  logging.info('===> MAKING CONECTION')
   create_table()
   issues = get_issues()
   for issue in issues:
@@ -52,5 +62,10 @@ def make_connection():
       insert(issue)
       create_card(issue)
 
+
+def timer_call():
+    make_connection()
+    threading.Timer(WAIT_SECONDS, timer_call).start()
+
 if __name__ == '__main__':
-  make_connection()
+  timer_call()
