@@ -13,6 +13,9 @@ TRELLO_KEY = os.environ['TRELLO_KEY']
 TRELLO_CARD_LIST = os.environ['TRELLO_CARD_LIST']
 REDMINE_KEY = os.environ['REDMINE_KEY']
 
+SPRINT_FIELD_ID=4
+POINTS_FIELD_ID=11
+
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
@@ -26,10 +29,17 @@ def create_card(issue:Issue):
     'token': TRELLO_TOKEN,
     'idList': TRELLO_CARD_LIST,
     'name': '[#{}] {}'.format(issue.id, issue.name),
-    'desc': issue.description,
+    'desc': issue.full_description,
     'urlSource': issue.link
   }
   requests.post(url, data=data)
+
+def find_field(field, custom_fields):
+  for f in custom_fields:
+    if f['id'] is field:
+      return f
+  return None
+
 
 def get_issues():
   logging.info('===> GETTING ISSUES')
@@ -47,25 +57,44 @@ def get_issues():
     id = issue['id']
     title = issue['subject']
     description = issue['description']
+    points = find_field(POINTS_FIELD_ID, issue['custom_fields'])['value']
+    sprint = find_field(SPRINT_FIELD_ID, issue['custom_fields'])['value']
     link = issue_link + str(id)
-    new_issue = Issue(id, title, description, link)
+    new_issue = Issue(id, title, description, link, points, sprint)
+
+    # TODO: Add assignee
+
     issues.append(new_issue)
   
   return issues
 
-def make_connection():
-  logging.info('===> MAKING CONECTION')
-  create_table()
+def create_cards_from_issues():
   issues = get_issues()
   for issue in issues:
     if not issue_exists(issue):
       insert(issue)
       create_card(issue)
 
+def update_issues_from_cards_on_doing():
+
+  # TODO: update issues based on cards on the "Doing" list
+
+  pass
+
+def update_issues_from_cards_on_done():
+  
+  # TODO: update issues based on cards on the "Done" list
+  
+  pass
 
 def timer_call():
-    make_connection()
+    create_cards_from_issues()
+    update_issues_from_cards_on_doing()
+    update_issues_from_cards_on_done()
+
     threading.Timer(WAIT_SECONDS, timer_call).start()
 
 if __name__ == '__main__':
+  erase_db()
+  create_table()
   timer_call()

@@ -1,5 +1,6 @@
 import psycopg2
 import os
+from issue import Status
 
 POSTGRES_USER = os.environ['POSTGRES_USER']
 POSTGRES_PASSWORD = os.environ['POSTGRES_PASSWORD']
@@ -32,10 +33,13 @@ def run_db_fetch_command(command):
 
 def create_table():
   run_db_command(
-      'CREATE TABLE IF NOT EXISTS issue (id serial primary key, name varchar(500));')
+      'CREATE TABLE IF NOT EXISTS issue (id serial primary key, name varchar(500), status int);')
 
 def insert(issue):
-  run_db_command('INSERT INTO issue VALUES ({}, \'{}\');'.format(issue.id, issue.name))
+  run_db_command(
+    'INSERT INTO issue VALUES ({}, \'{}\', {});'
+    .format(issue.id, issue.name, Status.NEW_ISSUE.value)
+  )
 
 def erase_db():
   run_db_command('DROP TABLE IF EXISTS issue;')
