@@ -95,6 +95,9 @@ def timer_call():
     threading.Timer(WAIT_SECONDS, timer_call).start()
 
 if __name__ == '__main__':
-  erase_db()
+  # erase_db()
+  
   create_table()
   timer_call()
+
+  # get_db_issues()

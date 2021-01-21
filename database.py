@@ -44,7 +44,7 @@ def insert(issue):
 def erase_db():
   run_db_command('DROP TABLE IF EXISTS issue;')
 
-def get_issues():
+def get_db_issues():
   recset = run_db_fetch_command('SELECT * FROM issue;')
   for rec in recset:
     print(rec)
