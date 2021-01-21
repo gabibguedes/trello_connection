@@ -100,4 +100,5 @@ if __name__ == '__main__':
   create_table()
   timer_call()
 
-  # get_db_issues()
+  ## get_db_issues()
+
